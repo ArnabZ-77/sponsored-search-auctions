@@ -11,7 +11,7 @@ Pure Python 3.12+, no runtime dependencies.
 
 ```bash
 pip install pytest
-python -m pytest          # 211 tests, ~1 s
+python -m pytest          # 222 tests, ~2 s
 python demo.py            # the same market under all four mechanisms, with clicks and budgets
 ```
 

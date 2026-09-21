@@ -1,0 +1,24 @@
+[project]
+name = "sponsored-search-auctions"
+version = "0.1.0"
+description = "Sponsored search auctions: rank-by-bid / rank-by-score x GFP / GSP with budget-safe pay-per-click."
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sponsored_search", "support"]

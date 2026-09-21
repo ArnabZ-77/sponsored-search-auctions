@@ -11,7 +11,7 @@ Pure Python 3.12+, no runtime dependencies.
 
 ```bash
 pip install pytest
-python -m pytest          # 174 tests, < 1 s
+python -m pytest          # 211 tests, ~1 s
 python demo.py            # the same market under all four mechanisms, with clicks and budgets
 ```
 
@@ -125,6 +125,9 @@ steps — not built.
   underlying bid but the awarded prices never change.
 - **Every search is a fresh auction on current state**, so bid and budget changes take effect on the
   next search — the "boost your bid before Valentine's Day" scenario in the brief.
+- **The auction system observes its bidders.** `Bidder.register_with` lets a house keep a per-term
+  index current, which is both the brief's "bids registered in the auction system" and what keeps
+  `search()` independent of catalogue size.
 
 ## Tests
 
@@ -139,6 +142,11 @@ steps — not built.
   budget under arbitrary click sequences, price ≤ offer, one slot per bidder, awards ≤ slots,
   rank-by-bid ≡ rank-by-score under equal weights, GSP ≤ GFP per slot, and raising your bid never
   lowers your position.
+- `tests/integration/test_datasets.py` + `tests/datasets/*.json` — scenarios whose expected prices come
+  from the literature (Wikipedia's GSP example, Google's published Ad Rank arithmetic, Lahaie's
+  rank-by-revenue) or from hand calculation. Adding a case is adding a JSON file.
+- `tests/integration/test_scale.py` — large markets: 2,000 bidders auctioned well under a second,
+  1,000 searches with random clicks never overrunning a budget, 100 tied bidders in registration order.
 
 ## Deliberately out of scope
 

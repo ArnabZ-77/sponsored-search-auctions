@@ -14,7 +14,7 @@ class PricingStrategy(ABC):
 
 class GeneralizedFirstPrice(PricingStrategy):
     def price(self, ranking: Sequence[RankedBid], position: int) -> Money:
-        return ranking[position].bid.effective_bid
+        return ranking[position].offer
 
 
 class GeneralizedSecondPrice(PricingStrategy):

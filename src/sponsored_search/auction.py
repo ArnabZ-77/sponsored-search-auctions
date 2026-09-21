@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from .bidding import Bid, Bidder, SearchTerm
-from .money import ZERO, Money
+from .money import CENT, ZERO, Money
 from .pricing import PricingStrategy
 from .ranking import UNIT, RankedBid, RankingStrategy
 
@@ -40,31 +40,26 @@ class AuctionResult:
 
 class AuctionHouse:
     def __init__(
-        self,
-        ranking: RankingStrategy,
-        pricing: PricingStrategy,
-        slots: int,
-        reserve_price: Money = ZERO,
+        self, ranking: RankingStrategy, pricing: PricingStrategy, slots: int, reserve_price: Money = ZERO
     ) -> None:
         if slots < 1:
             raise ValueError("an auction needs at least one slot")
         if reserve_price < ZERO:
             raise ValueError("reserve price must not be negative")
-        self._ranking = ranking
-        self._pricing = pricing
-        self._slots = slots
-        self._reserve = reserve_price
-        self._bidders: list[Bidder] = []
+        self._ranking, self._pricing, self._slots, self._reserve = ranking, pricing, slots, reserve_price
+        self._floor = max(reserve_price, CENT)
         self._weights: dict[Bidder, Decimal] = {}
+        self._bids: dict[SearchTerm, list[Bid]] = {}
 
     @property
     def bidders(self) -> tuple[Bidder, ...]:
-        return tuple(self._bidders)
+        return tuple(self._weights)
 
     def register(self, bidder: Bidder, weight: Decimal = UNIT) -> Bidder:
-        if bidder not in self._bidders:
-            self._bidders.append(bidder)
+        joining = bidder not in self._weights
         self.set_weight(bidder, weight)
+        if joining:
+            bidder.register_with(self._enlist)
         return bidder
 
     def set_weight(self, bidder: Bidder, weight: Decimal) -> None:
@@ -73,19 +68,20 @@ class AuctionHouse:
         self._weights[bidder] = weight
 
     def search(self, term: str) -> AuctionResult:
+        """Only bids registered for this term are considered, so cost tracks competition, not catalogue size."""
         key = SearchTerm(term)
-        bids = (bid for bidder in self._bidders if (bid := bidder.bid_for(key)))
-        ranking = self._ranking.rank(filter(self._admits, bids), self._weights)
-        awards = tuple(
-            SlotAward(position + 1, ranked.bid, self._price(ranking, position))
-            for position, ranked in enumerate(ranking[: self._slots])
+        ranking = self._ranking.rank(self._bids.get(key, ()), self._weights, self._floor)
+        return AuctionResult(
+            key,
+            tuple(
+                SlotAward(position + 1, ranked.bid, self._price(ranking, position))
+                for position, ranked in enumerate(ranking[: self._slots])
+            ),
         )
-        return AuctionResult(key, awards)
 
-    def _admits(self, bid: Bid) -> bool:
-        return not bid.is_exhausted and bid.effective_bid >= self._reserve
+    def _enlist(self, bid: Bid) -> None:
+        self._bids.setdefault(bid.term, []).append(bid)
 
     def _price(self, ranking: Sequence[RankedBid], position: int) -> Money:
         """No bidder ever pays more than it offered, nor less than the reserve."""
-        offered = ranking[position].bid.effective_bid
-        return min(offered, max(self._reserve, self._pricing.price(ranking, position)))
+        return min(ranking[position].offer, max(self._reserve, self._pricing.price(ranking, position)))

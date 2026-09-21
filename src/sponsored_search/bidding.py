@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from .money import ZERO, Money
@@ -66,14 +67,23 @@ class Bidder:
     def __init__(self, name: str) -> None:
         self.name = name
         self._bids: dict[SearchTerm, Bid] = {}
+        self._registries: list[Callable[[Bid], None]] = []
+
+    def register_with(self, registry: Callable[[Bid], None]) -> None:
+        """An auction system subscribes here so its per-term index stays current."""
+        self._registries.append(registry)
+        for bid in self._bids.values():
+            registry(bid)
 
     def place_bid(self, term: str, max_price: Money, budget: Money) -> Bid:
         key = SearchTerm(term)
-        if key in self._bids:
-            self._bids[key].update(max_price=max_price, budget=budget)
-        else:
-            self._bids[key] = Bid(self, key, max_price, budget)
-        return self._bids[key]
+        if existing := self._bids.get(key):
+            existing.update(max_price=max_price, budget=budget)
+            return existing
+        bid = self._bids[key] = Bid(self, key, max_price, budget)
+        for registry in self._registries:
+            registry(bid)
+        return bid
 
     def bid_for(self, term: SearchTerm) -> Bid | None:
         return self._bids.get(term)

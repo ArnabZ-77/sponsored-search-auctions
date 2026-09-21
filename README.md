@@ -75,6 +75,13 @@ A click re-validates at charge time, because repeated clicks on one result can d
 mid-result. An unaffordable click raises `BudgetExhausted` and charges nothing; the bid then sits out
 later auctions until the bidder tops it up.
 
+**The judgement call.** The brief says GFP bidders "pay their bid amount per click" *and* that budgets
+are never overrun; for a bidder with 0.25 left and a 0.90 bid those cannot both hold. We cap. The
+strict alternative — exclude anyone who cannot afford their full bid — over-excludes under GSP, where
+that bidder might only owe 0.05. Adopting it would take one new predicate on `Bid` (whether it can
+still afford its full max price; the max price is private, so that is deliberately not exposed today)
+and one changed condition in the participation filter.
+
 ### Money
 
 Prices are `Decimal` at cent precision, never `float`. `s(j+1)/w(j)` is a division, so the result is
@@ -146,7 +153,7 @@ steps — not built.
   from the literature (Wikipedia's GSP example, Google's published Ad Rank arithmetic, Lahaie's
   rank-by-revenue) or from hand calculation. Adding a case is adding a JSON file.
 - `tests/integration/test_scale.py` — large markets: 2,000 bidders auctioned well under a second,
-  1,000 searches with random clicks never overrunning a budget, 100 tied bidders in registration order.
+  1,000 searches with random clicks never overrunning a budget, 100 tied bidders in arrival order.
 
 ## Deliberately out of scope
 

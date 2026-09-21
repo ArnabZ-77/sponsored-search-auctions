@@ -1,5 +1,5 @@
 {
-  "source": "All scores equal 0.50; registration order decides, and each winner pays 0.50 / own weight",
+  "source": "All scores equal 0.50; arrival order decides, and each winner pays 0.50 / own weight",
   "ranking": "score", "pricing": "second", "slots": 2,
   "bidders": [["A", "0.50", "100", "1"], ["B", "0.25", "100", "2"], ["C", "1.00", "100", "0.5"]],
   "expected": [["A", "0.50"], ["B", "0.25"]]

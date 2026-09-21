@@ -28,8 +28,8 @@ Its §2.2 fixes the edge cases the brief leaves silent:
   than slots, the last slot is priced off the first bidder who won nothing. Only the bidder
   ranked last overall pays zero — Lahaie notes this is "effectively a reserve price of zero" and
   real engines charge a non-zero reserve, so the reserve is configurable (default 0).
-- Ties break by a permutation fixed in advance, "consistent with … order of arrival". We use
-  registration order via Python's stable sort.
+- Ties break by a permutation fixed in advance, "consistent with … order of arrival". We use the
+  order the bids were registered with the auction system, via Python's stable sort.
 - GFP pays the own bid under **both** ranking rules; non-winners always pay zero.
 
 **Key insight:** under rank-by-bid `w = 1`, so `s(j+1)/w(j)` collapses to `b(j+1)` and GFP is

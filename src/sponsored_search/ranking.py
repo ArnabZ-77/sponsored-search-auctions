@@ -24,7 +24,7 @@ class RankedBid:
 
 class RankingStrategy(ABC):
     def rank(self, bids: Iterable[Bid], weights: Weights, floor: Money = CENT) -> list[RankedBid]:
-        """Bids offering at least `floor`, highest score first; ties keep registration order."""
+        """Bids offering at least `floor`, highest score first; ties keep the order the bids arrived."""
         ranked = [scored for bid in bids if (scored := self._score(bid, self.weight_of(bid, weights))).offer >= floor]
         ranked.sort(key=BY_SCORE, reverse=True)
         return ranked

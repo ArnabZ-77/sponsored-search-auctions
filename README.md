@@ -49,7 +49,7 @@ The brief follows Lahaie, *An Analysis of Alternative Slot Auction Designs for S
   than slots, the last slot is priced off the first bidder who won nothing (`test_last_slot_is_priced_off_the_first_bidder_who_won_nothing`).
 - **Only the bidder ranked last overall pays zero** — unless a reserve price is set, in which case
   the reserve is the floor and bids below it do not participate.
-- **Ties break by registration order**, the arrival-based fixed permutation Lahaie describes.
+- **Ties break by arrival order** — the order the *bids* were registered with the auction system, which is the arrival-based fixed permutation Lahaie describes.
 - **GFP pays the own bid under both rankings; non-winners never pay.**
 
 ### Budgets: the effective-bid model

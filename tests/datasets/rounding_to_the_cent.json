@@ -1,0 +1,6 @@
+{
+  "source": "Scores 3.00 over 2.00 over 1.00 with weights 3, 1, 1: prices 2/3 -> 0.67 and 1/1 -> 1.00",
+  "ranking": "score", "pricing": "second", "slots": 2,
+  "bidders": [["A", "1.00", "100", "3"], ["B", "2.00", "100", "1"], ["C", "1.00", "100", "1"]],
+  "expected": [["A", "0.67"], ["B", "1.00"]]
+}

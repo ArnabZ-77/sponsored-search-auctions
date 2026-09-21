@@ -1,0 +1,6 @@
+{
+  "source": "Reserve 0.15: C (0.10) cannot participate, last winner pays the reserve instead of zero",
+  "ranking": "bid", "pricing": "second", "slots": 3, "reserve": "0.15",
+  "bidders": [["A", "0.50", "100", "1"], ["B", "0.20", "100", "1"], ["C", "0.10", "100", "1"]],
+  "expected": [["A", "0.20"], ["B", "0.15"]]
+}

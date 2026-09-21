@@ -1,0 +1,6 @@
+{
+  "source": "Wikipedia, Generalized second-price auction: bids 7, 6, 1 for two slots; slot 1 pays 6, slot 2 pays 1",
+  "ranking": "bid", "pricing": "second", "slots": 2,
+  "bidders": [["b1", "7", "100", "1"], ["b2", "6", "100", "1"], ["b3", "1", "100", "1"]],
+  "expected": [["b1", "6.00"], ["b2", "1.00"]]
+}

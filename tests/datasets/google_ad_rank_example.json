@@ -1,0 +1,6 @@
+{
+  "source": "Google Ads CPC explainer: Ad Rank 40 (bid 2 x quality 20) above Ad Rank 30 pays 30/20 = 1.50 (Google adds +0.01, which the brief does not)",
+  "ranking": "score", "pricing": "second", "slots": 1,
+  "bidders": [["you", "2.00", "100", "20"], ["below", "3.00", "100", "10"]],
+  "expected": [["you", "1.50"]]
+}

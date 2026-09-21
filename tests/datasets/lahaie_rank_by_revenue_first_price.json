@@ -1,0 +1,6 @@
+{
+  "source": "Same market as the Lahaie RBR case under first pricing: everyone pays their own bid",
+  "ranking": "score", "pricing": "first", "slots": 3,
+  "bidders": [["A", "1.00", "100", "0.5"], ["B", "0.60", "100", "1"], ["C", "0.40", "100", "2"], ["D", "0.30", "100", "1.5"]],
+  "expected": [["C", "0.40"], ["B", "0.60"], ["A", "1.00"]]
+}

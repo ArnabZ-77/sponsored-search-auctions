@@ -69,9 +69,11 @@ class Bidder:
 
     def place_bid(self, term: str, max_price: Money, budget: Money) -> Bid:
         key = SearchTerm(term)
-        bid = self._bids.setdefault(key, Bid(self, key, max_price, budget))
-        bid.update(max_price=max_price, budget=budget)
-        return bid
+        if key in self._bids:
+            self._bids[key].update(max_price=max_price, budget=budget)
+        else:
+            self._bids[key] = Bid(self, key, max_price, budget)
+        return self._bids[key]
 
     def bid_for(self, term: SearchTerm) -> Bid | None:
         return self._bids.get(term)

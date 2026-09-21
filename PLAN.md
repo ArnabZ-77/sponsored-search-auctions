@@ -96,6 +96,8 @@ Patterns, each earning its place:
 - [x] 8. integration tests: parametrized 2×2 matrix, worked examples, budgets, dynamics
 - [x] 9. invariant tests (randomized): price ≤ bid, spend ≤ budget, one slot per bidder, monotonicity, RBB ≡ RBR under equal weights, GSP ≤ GFP
 - [x] 10. `demo.py` + `README.md` (how to run, design, scope decisions)
+- [x] 11. data-driven JSON scenarios and large-market scale tests
+- [x] 12. index bids by search term; profile and trim the ranking hot path (see README, Performance)
 
 ## 6. Explicitly out of scope (deliberate)
 

@@ -25,8 +25,8 @@ AuctionHouse(ranking, pricing, slots, reserve)           the auctioneer
                         .click(position)                 charges that slot's price per click
 ```
 
-`search()` collects every registered bidder's bid for the term, drops exhausted ones, ranks them,
-and prices the top `slots` of the ranking. Nothing is charged until a user clicks.
+`search()` looks up the bids registered for that term, drops those that cannot meet the floor, ranks
+them, and prices the top `slots` of the ranking. Nothing is charged until a user clicks.
 
 ### The four mechanisms are 2 + 2 classes, not 4
 
@@ -82,6 +82,38 @@ rounded half-up to the cent; `AuctionHouse._price` then clamps every price to
 `min(offered, max(reserve, price))` in one place, so the "never pay more than offered" invariant holds
 for any pricing strategy anyone adds later.
 
+### Performance
+
+Bids are indexed by search term, so a search costs what the *competition* costs rather than what the
+*catalogue* costs. A bidder notifies the auction systems it is registered with (`Bidder.register_with`)
+so the index stays current — the brief's own phrase, "bids registered in the auction system", made
+literal.
+
+Measured by alternating between this version and the previous commit in one process, three
+repetitions, median (the machine varied by >30% between identical batches, so a naive before/after
+was not trustworthy):
+
+| advertisers | bidding on the term | before | after | speed-up |
+|---:|---:|---:|---:|---:|
+| 1,000 | 50 | 1.39 ms | 0.68 ms | 2.0x |
+| 10,000 | 50 | 7.02 ms | 0.46 ms | 15.3x |
+| 50,000 | 50 | 31.16 ms | 0.71 ms | 44.2x |
+| 100,000 | 50 | 70.36 ms | 0.47 ms | **151x** |
+| 10,000 | 1,000 | 39.53 ms | 11.51 ms | 3.4x |
+| 10,000 | 10,000 | 254.70 ms | 103.82 ms | 2.5x |
+
+Latency no longer grows with the advertiser base at all. Profiling the remaining hot loop also moved
+the sort's comparisons into C (sort on the raw `Decimal`, hand-written `Money` comparisons) and
+removed a duplicated budget computation per bid per search.
+
+One measured optimisation was **reverted**: `heapq.nlargest(slots + 1)` is asymptotically better than
+a full sort, but consistently slower here — `sorted()` is C-implemented Timsort while `nlargest` with
+a key does per-element work in Python.
+
+The remaining cost is genuine competition: if 10,000 advertisers bid on one keyword, all of them must
+be scored. Sharding the index by term, and keeping each term's bids ordered on write, are the next
+steps — not built.
+
 ## Design decisions
 
 - **Budget belongs to the bid**, per the brief ("each such bid is associated with a search term, a
@@ -112,7 +144,8 @@ for any pricing strategy anyone adds later.
 
 - Click-through-rate modelling (slot view probability): clicks are an input to this system, per the brief.
 - Persistence, REST API, UI: excluded by the brief.
-- Concurrency: the model is single-threaded; `AuctionHouse` is the obvious place to add locking.
+- Concurrency: the model is single-threaded. `AuctionHouse.search` and `Bid.charge` are where locking
+  would go; the per-term index also shards naturally, so searches on unrelated keywords need never contend.
 - VCG pricing: a natural third `PricingStrategy`, not requested.
 - Budgets shared across keywords, and pacing/throttling within a day: the brief scopes budget to a
   single bid and describes the non-throttling model.
